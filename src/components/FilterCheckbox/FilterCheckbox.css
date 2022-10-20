@@ -21,7 +21,8 @@
 }
 .search__checkbox-input:checked + .search__box{
     background-image: url('../../images/ball-btn.svg');
-    background-position: center right;
+    background-color: #EBEBEB;
+    background-position: 18px;
     transition: 0.5s linear;
 }
 .search__box{
@@ -31,7 +32,7 @@
     border-radius: 20px;
     background-image: url('../../images/ball-btn-disabled.svg');
     background-repeat: no-repeat;
-    background-position: center left;
+    background-position: 1px 1px;
     cursor: pointer;
     margin-right: 12px;
     transition: 0.5s linear;

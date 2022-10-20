@@ -86,6 +86,11 @@
     }
 }
 
+@media screen and (max-width: 670px) {
+    .main-page__img{
+        max-width: 100%;
+    }
+}
 @media screen and (max-width: 470px) {
     .main-page{
         padding: 180px 5px 40px;
@@ -97,13 +102,14 @@
         letter-spacing: -0.04em;
     }
     .main-page__img{
+        object-fit: cover;
+        width: 320px;
+        height: 230px;
         margin-top: 60px;
     }
     .learn-more-btn{
         max-width: 92px;
         padding: 9px 18px;
     }
-    .main-page__wrapper{
-        overflow: hidden;
-    }
+    
 }

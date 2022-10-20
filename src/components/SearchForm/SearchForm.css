@@ -33,7 +33,7 @@
     width: 100%;
 }
 .search__input:focus-visible {
-    outline: none;
+   outline: #2BE080 1px solid;
 }
 .search__icon{
     background-image: url('../../images/search-img.svg');
@@ -65,7 +65,8 @@
 }
 .search__checkbox-input:checked + .search__box{
     background-image: url('../../images/ball-btn.svg');
-    background-position: center right;
+    background-color: #EBEBEB;
+    background-position: 18px;
     transition: 0.5s linear;
 }
 .search__checkbox{
@@ -86,6 +87,10 @@
     border: none;
     cursor: pointer;
 }
+.search__btn:hover{
+    transition: 0.5s linear;
+    opacity: .6;
+}
 .search__box{
     width: 36px;
     height: 20px;
@@ -93,7 +98,8 @@
     border-radius: 20px;
     background-image: url('../../images/ball-btn-disabled.svg');
     background-repeat: no-repeat;
-    background-position: center left;
+    
+    background-position: 1px 2px;
     cursor: pointer;
     margin-right: 12px;
     transition: 0.5s linear;
