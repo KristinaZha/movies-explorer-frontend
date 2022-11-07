@@ -1,8 +1,7 @@
 import React from "react";
 
 import avatar from '../../images/avatar.jpg'
-import './AboutMe.css';
-
+import '../AboutMe/AboutMe.css';
 function AboutMe(){
     return(
         <section className="profile">
