@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from "react";
 import {useLocation} from 'react-router-dom';
 
@@ -69,7 +70,7 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
 
   useEffect(() => {
     getSavedMovies();
-  }, [getSavedMovies]);
+  }, []);
 
   useEffect(() => {
     if(checkbox){
@@ -86,7 +87,7 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
   } else{
       getSavedMovies();
   }
-}, [addMovies, checkbox, getSavedMovies, setAddMovies])
+}, [checkbox])
 
     return(
         <>

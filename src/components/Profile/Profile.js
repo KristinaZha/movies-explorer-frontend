@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from "react";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 
@@ -98,7 +99,7 @@ function Profile({setCurrentUser, handleSignOut}){
         if (localStorageEmail) {
           setLastEmail(localStorageEmail);
         }
-    }, []);
+    }, [handleSubmit]);
 
     useEffect(() => {
         setDisabled(true);

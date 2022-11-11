@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from "react";
 import {useLocation} from 'react-router-dom';
 
@@ -162,7 +163,7 @@ function Movies({addMovies, setAddMovies, handleMovieDelete, getSavedMovies}){
         } else{
             setError('Начните первый поиск нужных вам фильмов');
         }   
-    }, [getSavedMovies]);
+    }, []);
 
 //Фильтрация фильмов по длительности посредством переключения чекбокса(без отправки формы)
     useEffect(() => {
