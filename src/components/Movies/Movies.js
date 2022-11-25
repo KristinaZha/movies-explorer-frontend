@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useLocation} from 'react-router-dom';
 
-import { shortMovieDuration } from "../../utils/constants";
+import { shortMovieDuration, IMAGE_BASE_URL } from "../../utils/constants";
 
 import api from '../../utils/MainApi';
 import moviesApi from "../../utils/MoviesApi";
@@ -11,72 +11,50 @@ import MoviesCardList from "../MoviesCardList/MoviesCardList";
 
 import '../Movies/Movies.css';
 
-function Movies({addMovies, setAddMovies, handleMovieDelete, getSavedMovies}){
-
-//Используется для отображения информации компонента с поиском фильмов согласно страницам, где он находится
+function Movies({
+    addMovies,
+    setAddMovies,
+    handleMovieDelete,
+    getSavedMovies})
+    {
+    const [searchInput, setSearchInput] = useState('');
     const location = useLocation();
-    
-//Стейт-переменная с фильмами (фильмы из MoviesApi)
     const [movies, setMovies] = useState([]);
-
-//Стейт переменная управление прелоадером
     const [preloader, setPreloader] = useState(true);
-
-//Стейт перменная введенных в строку поика данных
-    const [searchValue, setSearchValue] = useState('');
-
-//Стейт переменная чекбокса
     const [checkbox, setCheckbox] = useState(false);
-
-//Стейт переменная ошибок
     const [error, setError] = useState('');
 
-//Сохранение фильмов
-    function saveMovie(movie){
-        const img = `https://api.nomoreparties.co${movie.image.url}`;
-        const thumbnail = `https://api.nomoreparties.co${movie.image.formats.thumbnail.url}`;
-        api.createMovie(
-            movie.country, 
-            movie.director, 
-            movie.duration, 
-            movie.year, 
-            movie.description, 
-            img, 
-            movie.trailerLink, 
-            thumbnail, 
-            movie.owner, 
-            movie.id, 
-            movie.nameRU, 
-            movie.nameEN
-            )
-            .then((res) => {
-                if(res){
-                    setAddMovies([res, ...addMovies]);    
-                } else {
-                    return;
-                }      
+ function PutMovie(film){
+    const img = `${IMAGE_BASE_URL}${film.image.url}`;
+    const thumbnail = `${IMAGE_BASE_URL}${film.image.formats.thumbnail.url}`;
+    api.createMovie( film.country,  film.director,  film.duration,  film.year, film.description, 
+    img,  film.trailerLink,  thumbnail, film.owner, film.id, film.nameRU,  film.nameEN
+        )
+        .then((res) => {
+            if(res){ setAddMovies([res, ...addMovies]); } 
+             else 
+              {
+              return;
+             }      
             })
-            .catch((err) => {
-            console.log(err);
-            })
+         .catch((err) => {
+          console.log(err);
+           })
     };
 
-//Сортировка фильмов
-    function sortMovies(films){
-        const filterBySearch = films.filter((movie) => {
-            return movie.nameRU.toLowerCase().includes(searchValue);
+    function filterOutMovie(films){
+        const filterMovie = films.filter((movie) => {
+            return movie.nameRU.toLowerCase().includes(searchInput);
         });
-
         const localCheckbox = localStorage.getItem('checkbox');
         const localCheckboxParse = JSON.parse(localCheckbox);
-        
-        if(filterBySearch.length === 0){
+            if(filterMovie.length === 0){
             setPreloader(false);
-            setError('Ничего не найдено');
+            setError('Упс...Повторите поиск');
             return;
         } else {
             if(localCheckboxParse){
-                const filteredByDuration = filterBySearch.filter((movie) => {
+                const filteredByDuration =    filterMovie.filter((movie) => {
                     return movie.duration <= shortMovieDuration;
                 });
 
@@ -89,105 +67,80 @@ function Movies({addMovies, setAddMovies, handleMovieDelete, getSavedMovies}){
                 }
                 
             } else{
-                setMovies(filterBySearch);
-                localStorage.setItem('filterMovies', JSON.stringify(filterBySearch)); 
+                setMovies(   filterMovie);
+                localStorage.setItem('filterMovies', JSON.stringify(   filterMovie)); 
             };    
         };
     };
 
-//Отправка формы
     function handleSubmit(event){
         event.preventDefault();
-
         setMovies([]);
-
         setPreloader(true);
-
-        if(searchValue === '' || searchValue === null){
+        if(searchInput === '' || searchInput === null){
             setPreloader(false);
-            setError('Нужно ввести ключевое слово');
+            setError('Введите название фильма для поиска');
             return;
         } else {
+            localStorage.setItem('   searchInput',    searchInput);
             setError('');
-
-            localStorage.setItem('searchValue', searchValue); //сохраняем результат поиска фильмов в localStorage
-
-            if(JSON.parse(localStorage.getItem('movies'))){
+                if(JSON.parse(localStorage.getItem('movies'))){
                 setPreloader(false);
                 const localFilms = localStorage.getItem('movies');
                 const localFilmsParse = JSON.parse(localFilms);
-                sortMovies(localFilmsParse);
+                filterOutMovie(localFilmsParse);
             } else{
                 moviesApi.getMovies()
                     .then(movies => {
                         localStorage.setItem('movies', JSON.stringify(movies));
-                        sortMovies(movies);
+                        filterOutMovie(movies);
                     })
                     .finally(() => setPreloader(false))
                     .catch(() => {
-                        setError('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз');
+                        setError('Ничего не найдено');
                     })
             };
         };
     };
 
-//Отображение ранее введенной информации при монтировании компонента
     useEffect(() => {
         setPreloader(false);
-
         getSavedMovies();
-
-    //Отфильтрованные фильмы без учета длительности фильма
-        const localMovies = localStorage.getItem('filterMovies');
-        const localMoviesParse = JSON.parse(localMovies);
-    
-    //Отфильтрованные фильмы c учетом длительности фильма
+        const searchMovies = localStorage.getItem('filterMovies');
+        const searchMoviesParse = JSON.parse(searchMovies);
         const localShortMovies = localStorage.getItem('filterMoviesByDuration');
         const localShortMoviesParse = JSON.parse(localShortMovies);
-
-    //Состояние чекбокса
         const localCheckbox = localStorage.getItem('checkbox');
         const localCheckboxParse = JSON.parse(localCheckbox);
-
-        if(localMoviesParse){
+        if(searchMoviesParse){
             if(localCheckboxParse){
                 if(localShortMoviesParse){
                     setMovies(localShortMoviesParse);
                 } else {
-                    setMovies(localMoviesParse)
+                    setMovies(searchMoviesParse)
                 }
             } else {
-               setMovies(localMoviesParse); 
+               setMovies(searchMoviesParse); 
             }
         } else{
             setError('Начните первый поиск нужных вам фильмов');
         }   
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-//Фильтрация фильмов по длительности посредством переключения чекбокса(без отправки формы)
     useEffect(() => {
-    
-    //Сброс ошибок
-        setError('');
-        
-    //Отфильтрованные фильмы без учета длительности фильма
-        const localMovies = localStorage.getItem('filterMovies');
-        const localMoviesParse = JSON.parse(localMovies);
-
-    //Состояние чекбокса
+    setError('');
+        const searchMovies = localStorage.getItem('filterMovies');
+        const searchMoviesParse = JSON.parse(searchMovies);
         const localCheckbox = localStorage.getItem('checkbox');
         const localCheckboxParse = JSON.parse(localCheckbox);
-        
-        if(localMoviesParse){
-            
-            if(localCheckboxParse === true){
+            if(   searchMoviesParse){
+             if(localCheckboxParse === true){
                 setCheckbox(true);
-
-                const filteredByDuration = localMoviesParse.filter((movie) => {
+                const filteredByDuration =    searchMoviesParse.filter((movie) => {
                     return movie.duration <= shortMovieDuration;
                 });
-    
-                if(filteredByDuration.length === 0){
+                    if(filteredByDuration.length === 0){
                     setMovies([]);
                     setError('Ничего не найдено');
                     return; 
@@ -195,10 +148,9 @@ function Movies({addMovies, setAddMovies, handleMovieDelete, getSavedMovies}){
                     setMovies(filteredByDuration);
                     localStorage.setItem('filterMoviesByDuration', JSON.stringify(filteredByDuration));
                 }
-
             } else if(localCheckboxParse === false){
                 setCheckbox(false);
-                setMovies(localMoviesParse);
+                setMovies(   searchMoviesParse);
             }
 
         } else{
@@ -207,33 +159,11 @@ function Movies({addMovies, setAddMovies, handleMovieDelete, getSavedMovies}){
 
     }, [checkbox]);
 
-    return(
+    return (
         <>
-            <SearchForm
-                handleSubmit={handleSubmit}
-                setSearchValue={setSearchValue}
-                setCheckbox={setCheckbox}
-                locationMovies={location.pathname}
-            />
-
-            <span className="server">{error || ''}</span>
-
-            { preloader 
-            
-            ?
-            
-            <Preloader /> 
-            
-            :
-            
-            <MoviesCardList 
-                movies={movies}
-                addMovies={addMovies}
-                setAddMovies={setAddMovies}
-                saveMovie={saveMovie}
-                handleMovieDelete={handleMovieDelete}
-            />
-
+            <SearchForm locationMovies={location.pathname} handleSubmit={handleSubmit} setSearchInput={setSearchInput} setCheckbox={setCheckbox}/> <span className="server">{error || ''}</span>
+            { preloader ? <Preloader />  :
+             <MoviesCardList  movies={movies} addMovies={addMovies} setAddMovies={setAddMovies} PutMovie={PutMovie} handleMovieDelete={handleMovieDelete}/>
             }
         </>
     );

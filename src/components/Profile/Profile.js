@@ -1,14 +1,9 @@
 import React, {useState, useEffect} from "react";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
-
 import api from "../../utils/MainApi";
-
 import { regExpEmail, regExpName } from "../../utils/constants";
-
 import '../Profile/Profile.css';
-
 function Profile({setCurrentUser, handleSignOut}){
-
 //Подписка на контекст пользователя
     const currentUser = React.useContext(CurrentUserContext);
 
@@ -78,8 +73,8 @@ function Profile({setCurrentUser, handleSignOut}){
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     function handleSubmit(event){
-        
         event.preventDefault();
         localStorage.setItem('name', userName);
         localStorage.setItem('email', userEmail);

@@ -10,7 +10,7 @@ import { getMoreFilms } from '../../utils/getMoreFilms';
 
 import "../MoviesCardList/MoviesCardList.css";
 
-function MoviesCardList({movies, addMovies, saveMovie, handleMovieDelete}){
+function MoviesCardList({movies, addMovies,    PutMovie, handleMovieDelete}){
 
 //Переменная с текущей шириной экрана
     const width = useCurrentWidth();
@@ -51,7 +51,7 @@ function MoviesCardList({movies, addMovies, saveMovie, handleMovieDelete}){
                         duration={movie.duration}
                         img={movie.image.url}
                         addMovies={addMovies}
-                        saveMovie={saveMovie}
+                           PutMovie={   PutMovie}
                         handleMovieDelete={handleMovieDelete}
                         isLike={isLike}
                         deleteMovie={deleteMovie}

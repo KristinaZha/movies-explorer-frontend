@@ -14,7 +14,7 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
   const location = useLocation();
 
 //Стейт перменная введенных в строку поика данных
-  const [searchValue, setSearchValue] = useState('');
+  const [   searchInput,    setSearchInput] = useState('');
 
 //Стейт переменная чекбокса
   const [checkbox, setCheckbox] = useState(false);
@@ -23,17 +23,17 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
   const [error, setError] = useState('');
 
 //Сортировка фильмов
-  function sortMovies(films){
-    const filterBySearch = films.filter((movie) => {
-        return movie.nameRU.toLowerCase().includes(searchValue);
+  function    filterOutMovie(films){
+    const    filterMovie = films.filter((movie) => {
+        return movie.nameRU.toLowerCase().includes(   searchInput);
     });
     
-    if(filterBySearch.length === 0){
+    if(   filterMovie.length === 0){
       setError('Ничего не найдено');
       return;
     } else{
         if(checkbox){
-          const filteredByDuration = filterBySearch.filter((movie) => {
+          const filteredByDuration = filterMovie.filter((movie) => {
               return movie.duration <= shortMovieDuration;
           });
 
@@ -44,31 +44,32 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
             setAddMovies(filteredByDuration);  
           }
         } else{
-            setAddMovies(filterBySearch);
+            setAddMovies(   filterMovie);
         };  
     };
   };
 
 //Отправка формы поиска фильмов
-  function handleSubmit(event){
-    event.preventDefault();
+  function handleSubmit(e){
+    e.preventDefault();
 
     setAddMovies([]);
     
-    if(searchValue === '' || searchValue === null){
+    if(   searchInput === '' ||    searchInput === null){
         setError('Нужно ввести ключевое слово');
     } else {
         setError('');
         if(addMovies === []){
           setError('Вы ещё не сохранили ни одного фильма');
         } else{
-          sortMovies(addMovies);
+             filterOutMovie(addMovies);
         }
     };
   };
 
   useEffect(() => {
     getSavedMovies();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -86,13 +87,14 @@ function SavedMovies({ addMovies, setAddMovies, handleMovieDelete, getSavedMovie
   } else{
       getSavedMovies();
   }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [checkbox])
 
     return(
         <>
             <SearchForm
               handleSubmit={handleSubmit}
-              setSearchValue={setSearchValue}
+                 setSearchInput={   setSearchInput}
               setCheckbox={setCheckbox} 
               locationSavedMovies={location.pathname}
             />

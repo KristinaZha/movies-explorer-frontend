@@ -2,7 +2,7 @@ import React from "react";
 
 import '../MoviesCard/MoviesCard.css';
 
-function MoviesCard({movie, nameRU, duration, img, saveMovie, isLike, deleteMovie}){
+function MoviesCard({movie, nameRU, duration, img, PutMovie, isLike, deleteMovie}){
 
 // продолжительность фильма под формат времени 
     function translationTime(num){
@@ -18,7 +18,7 @@ function MoviesCard({movie, nameRU, duration, img, saveMovie, isLike, deleteMovi
                         <h2 className="films__title">{nameRU}</h2>
                         <button 
                         type="button" 
-                        onClick={() => {isLike(movie.id) ? deleteMovie(movie.id) : saveMovie(movie)}} 
+                        onClick={() => {isLike(movie.id) ? deleteMovie(movie.id) : PutMovie(movie)}} 
                         className={`films__like ${isLike(movie.id) && 'films__like_active'}`}
                     ></button>  
                     </div>

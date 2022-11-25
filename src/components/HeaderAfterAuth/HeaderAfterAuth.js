@@ -6,7 +6,7 @@ import Navigation from '../Navigation/Navigation';
 import logo from '../../images/logo.svg';
 import '../Header/Header.css';
 
-function HeaderAfterAuth() {
+function     HeaderAfterAuth() {
     return(
         <header className="header header_white">
             <div className="header__wrapper">
@@ -31,4 +31,4 @@ function HeaderAfterAuth() {
     );
 }
 
-export default HeaderAfterAuth;
+export default     HeaderAfterAuth;

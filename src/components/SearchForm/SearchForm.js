@@ -1,33 +1,28 @@
 import React from "react";
-
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
-
 import { useEffect } from "react";
-
 import '../SearchForm/SearchForm.css';
 
-function SearchForm({handleSubmit, setSearchValue, setCheckbox, locationMovies, locationSavedMovies}){
+function SearchForm({handleSubmit, setSearchInput, setCheckbox, locationMovies, locationSavedMovies}){
 
-//Управление поиском фильмов
-    function handleChange(event){
-        const value = event.target.value.toLowerCase();
-        setSearchValue(value);    
+    function handleChange(e){
+        const value = e.target.value.toLowerCase();
+           setSearchInput(value);    
     };
 
-//Отображение ранее введенной информации 
-    useEffect(() => {
+   useEffect(() => {
         if(locationMovies){
-            const localValue = localStorage.getItem('searchValue');
-
+            const localValue = localStorage.getItem('searchInput');
             if(localValue === ''){
                 return;
             } else{
                 const input = document.getElementById('search');
                 input.value = localValue;
-                setSearchValue(localValue);
+                   setSearchInput(localValue);
             }    
         }
-    }, [locationMovies, setSearchValue]);
+    }, 
+    [locationMovies, setSearchInput]);
 
     return(
         <section className="search">

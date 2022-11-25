@@ -1,15 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
-
-//Импорт утилит
 import api from '../../utils/MainApi';
 import * as auth from '../../utils/auth';
-
 import CurrentUserContext from '../../contexts/CurrentUserContext';
-
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
-
-//Импорты компонентов
 import Header from '../Header/Header';
 import HeaderAfterAuth from '../HeaderAfterAuth/HeaderAfterAuth';
 import Main from '../Main/Main';
@@ -20,43 +14,57 @@ import SavedMovies from '../SavedMovies/SavedMovies';
 import Profile from '../Profile/Profile';
 import PageNotFound from '../PageNotFound/PageNotFound';
 import Footer from '../Footer/Footer';
-
 import Preloader from '../Preloader/Preloader';
-
-//Импорт стилей
 import './App.css';
 
 function App() {
-
+  const [currentUser, setCurrentUser ] = useState({});
+  const [addMovies, setAddMovies] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(undefined);
+  const [preloader, setPreloader] = useState(true); 
   const history = useHistory();
 
-//Стейт переменная статуса пользователя
-  const [loggedIn, setLoggedIn] = useState(undefined);
+  
+//Регистрация пользователя
+function handleRegister ( email, password,name) {
+  return auth.register( email, password,name)
+  .then((data) => {
+    if (!data.token) {
+           console.log('Проверьте данные');
+    }
+      history.push("/signin");    
+  })
+      .catch((err) => console.log(err));
+};
 
-// Стейт переменная информации о пользователе
-  const [currentUser, setCurrentUser ] = useState({});
-
-//Стейт-переменная сохраненных фильмов (фильмы из MainApi)
-  const [addMovies, setAddMovies] = useState([]);
-
-//Стейт переменная состояния прелоадера
-  const [preloader, setPreloader] = useState(true);  
-
-//Получение сохраненных фильмов с сервера
-  function getSavedMovies(){
-    api.getMovies()
-        .then(res => {
-          if(res) {
-            const userMovies = res.filter((movie) => movie.owner === currentUser._id);
-            setAddMovies(userMovies);
-          } 
+function handleLogin(email,password){
+  return auth.authorize(email,password)
+  .then((data) => {
+      if(!data.token){
+          console.log()
+        } 
+          localStorage.setItem('jwt', data.token);
+          setLoggedIn(true);
+          history.push("/movies");    
         })
-        .catch((err) => {
-            console.log(err);
-        })
-  }
+  .catch((err) => {
+   console.log(err)
+})
+};
+ 
+ function getSavedMovies(){
+  api.getMovies()
+      .then(res => {
+        if(res) {
+          const userMovies = res.filter((movie) => movie.owner === currentUser._id);
+          setAddMovies(userMovies);
+        } 
+      })
+      .catch((err) => {
+          console.log(err);
+      })
+}
 
-//Удаление карточки
   function handleMovieDelete(id) {
     api.deleteMovie(id)
       .then((movie) => {
@@ -70,14 +78,12 @@ function App() {
       .catch(err => console.log(err));
   };
 
-//Выйти из профиля  
   function handleSignOut () {
-    localStorage.clear();
+    localStorage.removeItem('jwt');
     setLoggedIn(false);
     history.push("/");
   };
 
-//Запрос данных пользователя
   function getUserInfo(){
     api.getProfile()
     .then(user => {
@@ -90,7 +96,6 @@ function App() {
     })
   };
   
-//Проверка токена
     function checkToken() {
       let jwt = localStorage.getItem('jwt');
       if(jwt) {
@@ -109,7 +114,6 @@ function App() {
       }
     };
 
-//Запросы данных пользователя и проверка токена
   useEffect(() => {
     checkToken();
   });
@@ -124,59 +128,35 @@ function App() {
     <div className="App">
       <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
-
           <Switch>
-          
-            <Route exact path="/">
-              {loggedIn ? <HeaderAfterAuth /> : <Header />}
+             <Route exact path="/">{loggedIn ? <HeaderAfterAuth /> : <Header />}
               <Main />
               <Footer />
             </Route>
 
             <Route path="/signup">
-              <Register 
-                setLoggedIn={setLoggedIn}
+              <Register  handleRegister={handleRegister} setLoggedIn={setLoggedIn}
               />
             </Route>
 
             <Route path="/signin">
               <Login
-                loggedIn={loggedIn}
-                setLoggedIn={setLoggedIn} 
-                setCurrentUser={setCurrentUser}
+               handleLogin={handleLogin} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setCurrentUser={setCurrentUser}
               />
             </Route>            
 
-            {
-              
-              preloader 
-
-              ?
-
-              <Preloader />
-
-              :
-
+            { preloader  ? <Preloader /> :
               <>
                 <ProtectedRoute path="/movies" loggedIn={loggedIn}>
                   <HeaderAfterAuth />
-                  <Movies
-                    addMovies={addMovies}
-                    setAddMovies={setAddMovies}
-                    handleMovieDelete={handleMovieDelete}
-                    getSavedMovies={getSavedMovies}
+                  <Movies addMovies={addMovies} setAddMovies={setAddMovies} handleMovieDelete={handleMovieDelete} getSavedMovies={getSavedMovies}
                   />
                   <Footer />
                 </ProtectedRoute> 
 
                 <ProtectedRoute path="/saved-movies" loggedIn={loggedIn}>
                   <HeaderAfterAuth />
-                  <SavedMovies
-                    addMovies={addMovies}
-                    setAddMovies={setAddMovies} 
-                    handleMovieDelete={handleMovieDelete}
-                    currentUser={currentUser}
-                    getSavedMovies={getSavedMovies}
+                  <SavedMovies addMovies={addMovies} setAddMovies={setAddMovies}  handleMovieDelete={handleMovieDelete} currentUser={currentUser} getSavedMovies={getSavedMovies}
                   />
                   <Footer />
                 </ProtectedRoute>
@@ -184,16 +164,10 @@ function App() {
                 <ProtectedRoute path="/profile" loggedIn={loggedIn}>
                   <HeaderAfterAuth />
                   <Profile setCurrentUser={setCurrentUser} handleSignOut={handleSignOut} />
-                </ProtectedRoute>
-
-              </>
-
-            }
-
-              <Route path='*'>
+                </ProtectedRoute> </> }
+            <Route path='*'>
                 <PageNotFound />
               </Route>
-
           </Switch>
 
         </div>

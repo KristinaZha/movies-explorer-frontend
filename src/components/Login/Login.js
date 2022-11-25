@@ -1,57 +1,40 @@
 import React, {useState} from "react";
-import { Link, useHistory } from "react-router-dom";
-
-import * as auth from '../../utils/auth';
-
+import { Link } from "react-router-dom";
 import { regExpEmail } from "../../utils/constants";
-
-import { useFormWithValidation } from "../../utils/formValidation";
-
 import logo from '../../images/logo.svg';
 import '../Login/Login.css';
 
-function Login({setLoggedIn}){
-
-    const history = useHistory();
-
-    const { values, handleChange, errors, isValid } = useFormWithValidation();
-
+function Login(props){
+    const [errors, setErrors] = useState({});
+    const [isValid, setIsValid] = useState(false);
     const [serverError, setServerError] = useState('');
+    const [values, setValues] = useState({
+        email: '',
+        password: '',
+    });
 
-//Авторизация пользователя
-function handleLogin(email,password){
-    return auth.authorize(email,password)
-    .then((data) => {
-        if(!data.token){
-            setServerError('Токен передан неккоректно');
-            return;
-        } else{
-            localStorage.setItem('jwt', data.token);
-            setLoggedIn(true);
-            history.push("/movies");    
-        };
-    })
-    .catch((err) => {
-        if(err.statusCode === 401){
-            setServerError('Логин и пароль не верны');
-        } else if(err.statusCode === 500) {
-            setServerError('Сервер не отвечает');
-        } else {
-            setServerError('При авторизации пользователя произошла ошибка');
-        }
-    })
-};
+  function handleChange(e){
+    const target = e.target;
+    const value = target.value;
+    const name = target.name;
+    setValues({...values, [name] : value});
+    setErrors({...errors, [name]: target.validationMessage});
+    setIsValid(target.closest('form').checkValidity());
+  }
 
-//Отправка формы    
+   
     function handleSubmit(e){
         e.preventDefault();
         if (!values.email || !values.password) {
             return;
         }
-
-        handleLogin(values.email, values.password)
+        props.handleLogin(values.email, values.password)
+       .catch((err) => {
+        console.log(err);
+        setServerError('Произошла ошибка. Повторите запрос.');
+       })
     };
-
+   
     return(
         <section className="user-auth">
             <Link to='/'>
